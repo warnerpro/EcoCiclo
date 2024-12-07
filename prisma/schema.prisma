@@ -15,7 +15,6 @@ model User {
   name              String
   cpf               String            @unique
   birthDate         DateTime
-  address           String
   email             String            @unique
   password          String
   userType          String // Define se é "CATADOR" ou "USUARIO"

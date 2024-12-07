@@ -7,7 +7,6 @@ declare module "next-auth" {
     email: string;
     cpf: string;
     birthDate: Date;
-    address: string;
     userType: string;
     score: number;
     createdAt: Date;

@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id                Int               @id @default(autoincrement())
+  id                String               @id @default(uuid())
   name              String
   cpf               String            @unique
   birthDate         DateTime
@@ -33,7 +33,7 @@ model PontoColeta {
   latitude  Float // Latitude do ponto
   longitude Float // Longitude do ponto
   itens     PontoColetaItem[]
-  authorId  Int
+  authorId  String
   author    User              @relation(name: "user_point_author", fields: [authorId], references: [id]) // Quem criou o ponto
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
@@ -48,7 +48,7 @@ model PontoColetaItem {
   categoria     Categoria   @relation(fields: [categoriaId], references: [id])
   coletaId  Int?
   coleta    Coleta?  @relation(fields: [coletaId], references: [id])
-  autorId   Int
+  autorId   String
   autor     User     @relation(name: "user_item_author", fields: [autorId], references: [id]) // Quem adicionou o item
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -58,7 +58,7 @@ model Coleta {
   id        Int               @id @default(autoincrement())
   name      String
   score     Int // Pontos atribuídos para a coleta
-  catadorId Int
+  catadorId String
   catador   User              @relation(name: "user_catador", fields: [catadorId], references: [id])
   itens     PontoColetaItem[]
   status    String            @default("PENDENTE") // Pode ser "PENDENTE", "EM_ANDAMENTO", "CONCLUIDA"

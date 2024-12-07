@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  name              String
+  cpf               String   @unique
+  birthDate         DateTime
+  address           String
+  email             String   @unique
+  password          String
+  userType          String
+  score             Int      @default(0) // Pontos acumulados no sistema
+  coletasCriadas    Coleta[] @relation(name: "user_author") // Coletas criadas pelo usuário
+  coletasAtribuidas Coleta[] @relation(name: "user_catador") // Coletas recolhidas pelo usuário
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Coleta {
+  id          Int       @id @default(autoincrement())
+  name        String
+  coordinates String // Ex.: "latitude,longitude"
+  score       Int // Pontos atribuídos para a coleta
+  categoryId  Int
+  category    Categoria @relation(fields: [categoryId], references: [id])
+  authorId    Int
+  author      User      @relation(name: "user_author", fields: [authorId], references: [id]) // Quem criou a coleta
+  catadorId   Int? // Opcional: quem recolheu
+  catador     User?     @relation(name: "user_catador", fields: [catadorId], references: [id])
+  pin         String // Código para validar a coleta
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Categoria {
+  id          Int      @id @default(autoincrement())
+  name        String
+  iconKey     String // Referência ao ícone
+  collections Coleta[] // Coletas associadas a essa categoria
+}

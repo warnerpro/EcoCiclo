@@ -7,6 +7,7 @@ import Link from "next/link";
 import { levels } from "@/lib/constants/levels";
 import { Progress } from "@/components/ui/progress";
 import EditProfileDialog from "@/components/routes/profile/edit-profile-dialog";
+import SignOutButton from "@/components/sign-out";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,7 @@ export default async function Profile() {
           </p>
         </div>
       </div>
+      <SignOutButton />
     </div>
   );
 }

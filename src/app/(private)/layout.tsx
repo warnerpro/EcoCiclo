@@ -1,6 +1,8 @@
 import Link from "next/link";
 import SidebarItem from "@/components/routes/home/sidebar-item";
 import { UserType } from "@/lib/constants/user-type";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 const navigationItems = [
   {
@@ -20,11 +22,17 @@ const navigationItems = [
   },
 ];
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession();
+
+  if (!session) {
+    return redirect("/");
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">{children}</main>

@@ -1,4 +1,5 @@
 import SignInForm from "@/components/routes/auth/sign-in-form";
+import Link from "next/link";
 
 export default async function SignInHomepage({ searchParams }) {
   await searchParams;
@@ -24,6 +25,12 @@ export default async function SignInHomepage({ searchParams }) {
         ) : null}
         <SignInForm />
       </div>
+      <Link
+        href="/register"
+        className="text-sm text-center text-foreground/40 w-full mx-auto"
+      >
+        registrar
+      </Link>
     </div>
   );
 }

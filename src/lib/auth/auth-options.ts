@@ -21,10 +21,6 @@ export const authOptions = {
           where: { email: credentials.email },
         });
 
-        if (user) {
-          console.log(bcrypt.compareSync(credentials.password, user.password));
-        }
-
         if (user && bcrypt.compareSync(credentials.password, user.password)) {
           const { password, ...userData } = user;
 
@@ -44,7 +40,7 @@ export const authOptions = {
         token.username = user.username;
         token.name = user.name!;
         token.email = user.email!;
-        token.role = user.role!;
+        token.userType = user.userType!;
       }
       return token;
     },
@@ -53,6 +49,7 @@ export const authOptions = {
         name: token.name as string,
         username: token.username as string,
         email: token.email,
+        userType: token.userType,
       };
 
       return session;

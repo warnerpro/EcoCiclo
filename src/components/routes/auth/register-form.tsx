@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils"; // Uma função opcional para gerenciar classes dinâmicas
 import { toast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
@@ -38,13 +37,13 @@ const formSchema = z.object({
   agreeTerms: z.boolean().refine((value) => value === true, {
     message: "Você deve concordar com os termos.",
   }),
-  userType: z.enum(["Catador", "Usuario"]),
+  userType: z.enum(["CATADOR", "USUARIO"]),
 });
 
 type RegisterFormValues = z.infer<typeof formSchema>;
 
 export default function RegisterForm() {
-  const [userType, setUserType] = useState<"Catador" | "Usuario" | null>(null); // Define o tipo de usuário
+  const [userType, setUserType] = useState<"CATADOR" | "USUARIO" | null>(null); // Define o tipo de usuário
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +53,7 @@ export default function RegisterForm() {
       email: "",
       password: "",
       agreeTerms: false,
-      userType: "Usuario",
+      userType: "USUARIO",
     },
   });
 
@@ -98,13 +97,13 @@ export default function RegisterForm() {
           <h1 className="text-2xl font-bold text-start">Quem é você?</h1>
         </div>
         <div className="flex flex-col space-y-4">
-          <Button className="w-full" onClick={() => setUserType("Usuario")}>
+          <Button className="w-full" onClick={() => setUserType("USUARIO")}>
             Sou Usuário
           </Button>
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => setUserType("Catador")}
+            onClick={() => setUserType("CATADOR")}
           >
             Sou Catador
           </Button>

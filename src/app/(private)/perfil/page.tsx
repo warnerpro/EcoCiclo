@@ -6,20 +6,25 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { levels } from "@/lib/constants/levels";
 import { Progress } from "@/components/ui/progress";
+import EditProfileDialog from "@/components/routes/profile/edit-profile-dialog";
 
 export const dynamic = "force-dynamic";
 
 export default async function Profile() {
   const session = await getServerSession(authOptions);
 
-  const scoreOrNull = await prisma.user.findUnique({
+  const userOrNull = await prisma.user.findUnique({
     where: { email: session.user.email },
     select: {
       score: true,
+      name: true,
+      email: true,
+      cpf: true,
+      birthDate: true,
     },
   });
 
-  if (!scoreOrNull) {
+  if (!userOrNull) {
     throw new Error("Usuário não encontrado");
   }
 
@@ -32,10 +37,10 @@ export default async function Profile() {
     levels
       .slice()
       .reverse()
-      .find((level) => scoreOrNull.score >= level.scoreRequired) || levels[0];
+      .find((level) => userOrNull.score >= level.scoreRequired) || levels[0];
 
   const progress =
-    (scoreOrNull.score - actualLevel.scoreRequired) /
+    (userOrNull.score - actualLevel.scoreRequired) /
     (actualLevel.scoreRequired - levels[levels.length - 1].scoreRequired);
 
   return (
@@ -54,16 +59,16 @@ export default async function Profile() {
           }}
         ></div>
         <div className="flex flex-col items-start text-start">
-          <h2 className="font-bold">
-            {getFirstAndLastName(session.user.name)}
-          </h2>
-          <p className="font-light text-sm text-gray-400">
-            {session.user.email}
-          </p>
+          <h2 className="font-bold">{getFirstAndLastName(userOrNull.name)}</h2>
+          <p className="font-light text-sm text-gray-400">{userOrNull.email}</p>
         </div>
-        <Button variant="secondary" className="w-full font-bold">
-          Editar perfil
-        </Button>
+        <EditProfileDialog
+          user={{
+            name: userOrNull.name,
+            email: userOrNull.email,
+            cpf: userOrNull.cpf,
+          }}
+        />
       </div>
       <div className="w-full flex flex-col items-start space-y-4">
         <h2 className="font-bold">score</h2>

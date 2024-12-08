@@ -14,7 +14,7 @@ export default async function Home() {
     switch (session.user.userType) {
       case "USUARIO":
         return "Registrar Coleta";
-      case "COLETOR":
+      case "CATADOR":
         return "Buscar Coletas";
       default:
         return "Acessar Dashboard";

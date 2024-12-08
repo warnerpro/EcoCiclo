@@ -63,7 +63,10 @@ export default function EditProfileDialog({
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao atualizar o perfil.");
+        toast({
+          title: "Erro ao atualizar o perfil.",
+          variant: "destructive",
+        });
       }
 
       toast({
@@ -72,7 +75,10 @@ export default function EditProfileDialog({
       });
       setIsOpen(false); // Fecha o diálogo após o sucesso
     } catch (error) {
-      console.error("Erro ao atualizar o perfil:", error);
+      toast({
+        title: "Erro ao atualizar o perfil.",
+        variant: "destructive",
+      });
     }
   };
 

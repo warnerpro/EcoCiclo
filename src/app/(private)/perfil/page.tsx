@@ -34,15 +34,33 @@ export default async function Profile() {
     return `${firstName} ${lastName}`;
   };
 
-  const actualLevel =
-    levels
-      .slice()
-      .reverse()
-      .find((level) => userOrNull.score >= level.scoreRequired) || levels[0];
+  function getLevelAndNextLevelAndProgress(score: number) {
+    let level = 1;
+    let nextLevel = levels[level];
+    let actualLevel = levels[level - 1];
+    let progress = 0;
 
-  const progress =
-    (userOrNull.score - actualLevel.scoreRequired) /
-    (actualLevel.scoreRequired - levels[levels.length - 1].scoreRequired);
+    while (score >= nextLevel.scoreRequired) {
+      level++;
+      nextLevel = levels[level];
+    }
+
+    if (level === 1) {
+      progress = (score / nextLevel.scoreRequired) * 100;
+    } else {
+      const previousLevel = levels[level - 1];
+      progress =
+        ((score - previousLevel.scoreRequired) /
+          (nextLevel.scoreRequired - previousLevel.scoreRequired)) *
+        100;
+    }
+
+    return { actualLevel, nextLevel, progress };
+  }
+
+  const { actualLevel, nextLevel, progress } = getLevelAndNextLevelAndProgress(
+    userOrNull.score
+  );
 
   return (
     <div className="flex text-center  flex-col p-4 space-y-16">

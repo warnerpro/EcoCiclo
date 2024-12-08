@@ -19,8 +19,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import { ShoppingCart } from "lucide-react";
+import { ChevronRight, ShoppingCart } from "lucide-react";
 import CarrinhoDialog from "./carrinho-dialog";
+import { Icon } from "@/components/icon";
+import DrawerColetaEmAndamento from "./drawer-coleta-em-andamento";
 
 export default function CatadorColetas() {
   const [categorias, setCategorias] = useState([]);
@@ -257,32 +259,19 @@ export default function CatadorColetas() {
       {/* Coletas em Andamento */}
       <div className="space-y-4">
         <h2 className="font-bold">coletas em andamento</h2>
-        {coletasEmAndamento.length > 0 ? (
-          coletasEmAndamento.map((coleta: any) => (
-            <div
-              key={coleta.id}
-              className="p-4 border rounded-md shadow-sm hover:bg-gray-100 flex justify-between"
-            >
-              <div>
-                <h3 className="font-medium">Coleta #{coleta.id}</h3>
-                <p className="text-sm text-gray-500">
-                  {coleta.itens.length} itens na coleta
-                </p>
-              </div>
-              <Button
-                variant="destructive"
-                onClick={() => cancelarColeta(coleta.id)}
-              >
-                Cancelar
-              </Button>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500">Nenhuma coleta em andamento.</p>
+        {coletasEmAndamento.map((coleta: any) => (
+          <DrawerColetaEmAndamento
+            key={coleta.id}
+            coleta={coleta}
+            onStatusUpdate={fetchColetasEmAndamento}
+          />
+        ))}
+        {!coletasEmAndamento.length && (
+          <p className="text-sm text-gray-500">
+            você não tem nenhuma coleta em andamento ainda...
+          </p>
         )}
       </div>
-
-      {/* Dialog Carrinho */}
     </div>
   );
 }

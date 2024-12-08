@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { ChevronRight } from "lucide-react";
 import CarrinhoDialog from "./carrinho-dialog";
 import DrawerColetaEmAndamento from "./drawer-coleta-em-andamento";
+import Image from "next/image";
 
 export default function CatadorColetas() {
   const [categorias, setCategorias] = useState([]);
@@ -271,23 +272,30 @@ export default function CatadorColetas() {
               ) : null}
               <h3 className="font-medium">{ponto.name}</h3>
               {ponto.itens.map((item: any) => (
-                <div
-                  key={item.id}
-                  className="flex items-center space-x-2 hover:bg-gray-100 p-1 rounded"
-                >
-                  <Checkbox
-                    id={`item-${item.id}`}
-                    checked={carrinho.some((c) => c.id === item.id)}
-                    onCheckedChange={(checked) =>
-                      toggleItemCarrinho(
-                        { ...item, pontoName: ponto.name, pontoId: ponto.id },
-                        checked.valueOf() === true
-                      )
-                    }
-                  />
-                  <Label htmlFor={`item-${item.id}`}>
-                    {item.categoria.name}
-                  </Label>
+                <div key={item.id} className="flex flex-col space-y-2">
+                  <div className="flex items-center space-x-2 hover:bg-gray-100 p-1 rounded">
+                    <Checkbox
+                      id={`item-${item.id}`}
+                      checked={carrinho.some((c) => c.id === item.id)}
+                      onCheckedChange={(checked) =>
+                        toggleItemCarrinho(
+                          { ...item, pontoName: ponto.name, pontoId: ponto.id },
+                          checked.valueOf() === true
+                        )
+                      }
+                    />
+                    <Label htmlFor={`item-${item.id}`}>
+                      {item.categoria.name}
+                    </Label>
+                  </div>
+                  {item.fotoId && (
+                    <Image
+                      src={`/api/file/${item.fotoId}`}
+                      width={128}
+                      height={128}
+                      alt={item.categoria.name}
+                    />
+                  )}
                 </div>
               ))}
             </div>

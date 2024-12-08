@@ -65,7 +65,7 @@ export default async function Profile() {
   );
 
   return (
-    <div className="flex text-center  flex-col p-4 space-y-16">
+    <div className="flex text-center  flex-col p-4 space-y-16 pb-32">
       <div className="flex w-full justify-center">
         <h1 className="font-bold">Perfil</h1>
         <Link href="/home">

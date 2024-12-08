@@ -22,8 +22,30 @@ model User {
   pontosCriados     PontoColeta[]     @relation(name: "user_point_author") // Pontos criados pelo usuário
   itensColocados    PontoColetaItem[] @relation(name: "user_item_author") // Itens colocados pelo usuário
   coletasRealizadas Coleta[]          @relation(name: "user_catador") // Coletas realizadas pelo usuário
+  achievements      Achievement[]     // Conquistas do usuário
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+}
+
+model Achievement {
+  id        Int      @id @default(autoincrement())
+  description String
+  score     Int
+  iconKey   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Foto {
+  id        Int      @id @default(autoincrement())
+  key      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  item PontoColetaItem[]
 }
 
 model PontoColeta {
@@ -47,6 +69,8 @@ model PontoColetaItem {
   categoria     Categoria   @relation(fields: [categoriaId], references: [id])
   coletaId  Int?
   coleta    Coleta?  @relation(fields: [coletaId], references: [id])
+  foto      Foto?   @relation(fields: [fotoId], references: [id])
+  fotoId   Int?
   autorId   String
   autor     User     @relation(name: "user_item_author", fields: [autorId], references: [id]) // Quem adicionou o item
   createdAt DateTime @default(now())

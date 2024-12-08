@@ -15,11 +15,13 @@ import { z } from "zod";
 import { toast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icon";
+import UploadFile from "./upload-file";
 
 const formSchema = z.object({
   categoriaId: z
     .number()
     .min(1, { message: "Selecione uma categoria válida." }),
+  fotoId: z.number().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -43,14 +45,14 @@ export default function DialogNovoItem({
     resolver: zodResolver(formSchema),
     defaultValues: {
       categoriaId: 0,
+      fotoId: undefined,
     },
   });
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Controla abertura do dialog
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Buscar categorias da API
   const fetchCategorias = async () => {
     setIsLoading(true);
     try {
@@ -85,14 +87,16 @@ export default function DialogNovoItem({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          categoriaId: values.categoriaId,
+          fotoId: values.fotoId,
+        }),
       });
 
       if (!response.ok) {
         throw new Error("Erro ao adicionar item.");
       }
 
-      // Exibe toast de parabenização
       toast({
         title: "Parabéns! +10 pontos",
         description:
@@ -101,9 +105,8 @@ export default function DialogNovoItem({
       });
 
       form.reset();
-
-      onItemAdded(); // Atualiza a lista de itens
-      setIsDialogOpen(false); // Fecha o dialog
+      onItemAdded();
+      setIsDialogOpen(false);
     } catch (error) {
       toast({
         title: "Erro ao adicionar item.",
@@ -116,10 +119,6 @@ export default function DialogNovoItem({
 
   const shortNames = (name: string) =>
     name.length > 15 ? name.slice(0, 15) + "..." : name;
-
-  const { watch } = form;
-
-  const categoriaId = watch("categoriaId");
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -144,7 +143,7 @@ export default function DialogNovoItem({
                       form.setValue("categoriaId", categoria.id);
                     }}
                     className={`p-4 border rounded-md flex flex-col items-center space-y-2 hover:bg-gray-100 ${
-                      categoriaId === categoria.id
+                      form.watch("categoriaId") === categoria.id
                         ? "border-blue-500 bg-blue-50"
                         : "border-gray-200"
                     }`}
@@ -157,12 +156,17 @@ export default function DialogNovoItem({
                 ))}
               </div>
             )}
-            <p className="text-red-500 text-sm mt-2">
-              {form.formState.errors.categoriaId?.message}
-            </p>
           </div>
+          <UploadFile
+            onUploadComplete={(fotoId) => {
+              form.setValue("fotoId", fotoId);
+            }}
+          />
           <DialogFooter>
-            <Button type="submit" disabled={isLoading || !categoriaId}>
+            <Button
+              type="submit"
+              disabled={isLoading || !form.watch("categoriaId")}
+            >
               Salvar
             </Button>
           </DialogFooter>

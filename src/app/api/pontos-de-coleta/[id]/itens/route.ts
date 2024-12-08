@@ -51,7 +51,7 @@ export async function POST(
 
   try {
     const body = await req.json();
-    const { categoriaId } = body;
+    const { categoriaId, fotoId } = body; // Adicionado fotoId ao body
 
     if (!categoriaId) {
       return Response.json(
@@ -72,6 +72,20 @@ export async function POST(
       );
     }
 
+    // Valida se a foto existe (caso tenha sido enviada)
+    if (fotoId) {
+      const fotoExists = await prisma.foto.findUnique({
+        where: { id: fotoId },
+      });
+
+      if (!fotoExists) {
+        return Response.json(
+          { error: "Foto associada não encontrada." },
+          { status: 404 }
+        );
+      }
+    }
+
     // Cria o novo item
     const novoItem = await prisma.pontoColetaItem.create({
       data: {
@@ -79,9 +93,11 @@ export async function POST(
         categoriaId: parseInt(categoriaId),
         coletado: false, // Padrão como não coletado
         autorId: pontoExists.authorId, // Associa o autor do ponto de coleta como autor do item
+        fotoId: fotoId ?? null, // Associa a foto, caso tenha sido enviada
       },
     });
 
+    // Incrementa o score do usuário
     await prisma.user.update({
       where: { id: pontoExists.authorId },
       data: {

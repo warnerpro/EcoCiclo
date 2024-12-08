@@ -7,7 +7,7 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
   const getFirstAndLastName = (name: string) => {
     const [firstName, lastName] = name.split(" ");
-    return `${firstName} ${lastName}`;
+    return lastName ? `${firstName} ${lastName}` : firstName;
   };
 
   const getMessage = () => {

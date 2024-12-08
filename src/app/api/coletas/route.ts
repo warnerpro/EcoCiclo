@@ -37,6 +37,7 @@ export async function GET() {
           itens: {
             include: {
               categoria: true,
+              pontoColeta: true,
             },
           },
         },

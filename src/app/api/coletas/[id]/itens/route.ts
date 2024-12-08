@@ -124,6 +124,14 @@ export async function DELETE(
       await prisma.coleta.delete({
         where: { id: item.coleta.id },
       });
+    } else {
+      await prisma.pontoColetaItem.update({
+        where: { id: itemId },
+        data: {
+          coletado: false,
+          coletaId: null,
+        },
+      });
     }
 
     return new Response(null, { status: 204 });

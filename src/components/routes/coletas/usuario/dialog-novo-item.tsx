@@ -54,7 +54,9 @@ export default function DialogNovoItem({
   const fetchCategorias = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/categorias?pontoId=${pontoId}`);
+      const response = await fetch(`/api/categorias?pontoId=${pontoId}`, {
+        cache: "no-cache",
+      });
       if (!response.ok) {
         throw new Error("Erro ao buscar categorias.");
       }
@@ -79,6 +81,7 @@ export default function DialogNovoItem({
     try {
       const response = await fetch(`/api/pontos-de-coleta/${pontoId}/itens`, {
         method: "POST",
+        cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
         },

@@ -20,7 +20,9 @@ export default function Coletas() {
   const fetchPontosDeColeta = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/pontos-de-coleta");
+      const response = await fetch("/api/pontos-de-coleta", {
+        cache: "no-cache",
+      });
       if (!response.ok) throw new Error("Erro ao buscar pontos de coleta.");
       const data = await response.json();
       setPontosDeColeta(data);
@@ -37,7 +39,9 @@ export default function Coletas() {
   const fetchItensDoPonto = async (pontoId) => {
     setIsFetchingItens(true);
     try {
-      const response = await fetch(`/api/pontos-de-coleta/${pontoId}/itens`);
+      const response = await fetch(`/api/pontos-de-coleta/${pontoId}/itens`, {
+        cache: "no-cache",
+      });
       if (!response.ok) throw new Error("Erro ao buscar itens.");
       const data = await response.json();
       setItens(data);

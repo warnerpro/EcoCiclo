@@ -60,6 +60,7 @@ export default function RegisterForm() {
   const onSubmit = async (values: RegisterFormValues) => {
     try {
       const response = await fetch("/api/register", {
+        cache: "no-cache",
         method: "POST",
         headers: {
           "Content-Type": "application/json",

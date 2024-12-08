@@ -47,6 +47,7 @@ export default function DrawerPontoColeta({
       const response = await fetch(
         `/api/pontos-de-coleta/${pontoId}/itens/${itemId}`,
         {
+          cache: "no-cache",
           method: "DELETE",
         }
       );

@@ -76,11 +76,12 @@ export default function CatadorColetas() {
   // Fetch das coletas em andamento
   const fetchColetasEmAndamento = async () => {
     try {
-      const response = await fetch("/api/coletas");
+      const response = await fetch("/api/coletas", { cache: "no-cache" });
       if (!response.ok) {
         throw new Error("Erro ao buscar coletas.");
       }
       const data = await response.json();
+
       setColetasEmAndamento(data);
     } catch (error) {
       toast({
@@ -105,6 +106,7 @@ export default function CatadorColetas() {
   const confirmarColeta = async () => {
     try {
       const response = await fetch("/api/coletas", {
+        cache: "no-cache",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,35 +129,6 @@ export default function CatadorColetas() {
     } catch (error) {
       toast({
         title: "Erro ao criar coleta.",
-        description: "Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Cancelar Coleta
-  const cancelarColeta = async (id: number) => {
-    try {
-      const response = await fetch(`/api/coletas`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao cancelar a coleta.");
-      }
-
-      toast({
-        title: "Coleta cancelada com sucesso!",
-        variant: "success",
-      });
-      fetchColetasEmAndamento();
-    } catch (error) {
-      toast({
-        title: "Erro ao cancelar a coleta.",
         description: "Tente novamente mais tarde.",
         variant: "destructive",
       });

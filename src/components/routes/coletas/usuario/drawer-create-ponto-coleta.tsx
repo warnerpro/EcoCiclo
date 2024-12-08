@@ -150,6 +150,7 @@ export default function DrawerCreatePontoColeta({
   }) => {
     try {
       const response = await fetch("/api/pontos-de-coleta", {
+        cache: "no-cache",
         method: "POST",
         headers: {
           "Content-Type": "application/json",

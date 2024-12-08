@@ -1,11 +1,11 @@
 import prisma from "@/lib/db/db"; // Certifique-se de que o Prisma está configurado corretamente
-import { NextRequest } from "next/server";
 
-export async function DELETE(request: NextRequest) {
-  const params = request.nextUrl.searchParams;
-
-  const pontoId = parseInt(params.get("id")!);
-  const itemId = parseInt(params.get("itemId")!);
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string; itemId: string } }
+) {
+  const pontoId = parseInt(params.id);
+  const itemId = parseInt(params.itemId);
 
   if (isNaN(pontoId) || isNaN(itemId)) {
     return Response.json(

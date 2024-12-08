@@ -8,6 +8,7 @@ import { levels } from "@/lib/constants/levels";
 import { Progress } from "@/components/ui/progress";
 import EditProfileDialog from "@/components/routes/profile/edit-profile-dialog";
 import SignOutButton from "@/components/sign-out";
+import BaixarCertificado from "@/components/routes/profile/baixar-certificado";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +103,7 @@ export default async function Profile() {
           </p>
         </div>
       </div>
+      <BaixarCertificado />
       <SignOutButton />
     </div>
   );

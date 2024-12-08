@@ -91,7 +91,7 @@ export default function DialogNovoItem({
 
       // Exibe toast de parabenização
       toast({
-        title: "Parabéns!",
+        title: "Parabéns! +10 pontos",
         description:
           "Você adicionou um novo item ao ponto de coleta e ganhou +10 pontos por isso!",
         variant: "success",

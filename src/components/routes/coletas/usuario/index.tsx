@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import DrawerPontoColeta from "@/components/routes/coletas/usuario/drawer-ponto-coleta";
 import { PontoColeta } from "@prisma/client";
 import { ChevronRight } from "lucide-react";
+import DrawerCreatePontoColeta from "./drawer-create-ponto-coleta";
 
 export default function Coletas() {
   const [pontosDeColeta, setPontosDeColeta] = useState<PontoColeta[]>([]);
@@ -14,6 +15,7 @@ export default function Coletas() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingItens, setIsFetchingItens] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isCreatePontoDrawerOpen, setCreatePontoDrawerOpen] = useState(false);
 
   const fetchPontosDeColeta = async () => {
     setIsLoading(true);
@@ -58,24 +60,32 @@ export default function Coletas() {
       <h1 className="font-bold text-center">EcoCiclo</h1>
 
       <h1 className="text-lg font-bold">meus pontos de coleta</h1>
-      {isLoading ? (
-        <p>Carregando...</p>
-      ) : (
-        pontosDeColeta.map((ponto) => (
-          <div
-            key={ponto.id}
-            className="p-4 border rounded-md shadow-md flex justify-between items-center hover:bg-gray-100 cursor-pointer"
-            onClick={() => {
-              setSelectedPonto(ponto);
-              fetchItensDoPonto(ponto.id);
-              setDrawerOpen(true);
-            }}
-          >
-            <h2>{ponto.name}</h2>
-            <ChevronRight className="absolute right-6" />
-          </div>
-        ))
-      )}
+      {isLoading
+        ? Array.from({
+            length: 3,
+          }).map((_, index) => (
+            <div
+              key={index}
+              className="p-4 border rounded-md shadow-md animate-pulse"
+            >
+              <h2 className="w-1/2 bg-gray-200 h-4 mb-2"></h2>
+              <h2 className="w-1/3 bg-gray-200 h-4"></h2>
+            </div>
+          ))
+        : pontosDeColeta.map((ponto) => (
+            <div
+              key={ponto.id}
+              className="p-4 border rounded-md shadow-md flex justify-between items-center hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                setSelectedPonto(ponto);
+                fetchItensDoPonto(ponto.id);
+                setDrawerOpen(true);
+              }}
+            >
+              <h2>{ponto.name}</h2>
+              <ChevronRight className="absolute right-6" />
+            </div>
+          ))}
       {selectedPonto && (
         <DrawerPontoColeta
           pontoId={selectedPonto.id}
@@ -88,6 +98,22 @@ export default function Coletas() {
           onClose={() => setDrawerOpen(false)}
         />
       )}
+      <div>
+        <Button
+          onClick={() => setCreatePontoDrawerOpen(true)}
+          className="w-full"
+        >
+          Criar Novo Ponto
+        </Button>
+        <DrawerCreatePontoColeta
+          isOpen={isCreatePontoDrawerOpen}
+          onClose={() => setCreatePontoDrawerOpen(false)}
+          onSuccess={() => {
+            fetchPontosDeColeta();
+            setCreatePontoDrawerOpen(false);
+          }}
+        />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
-const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
 export async function GET(req: Request) {
+  const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+
   const { searchParams } = new URL(req.url);
   const query = searchParams.get("query");
   const latlng = searchParams.get("latlng");

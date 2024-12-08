@@ -62,7 +62,11 @@ export default function DrawerColetaEmAndamento({
           body: JSON.stringify({ id: coleta.id, status: "CONCLUIDA" }),
         });
 
-        toast({ title: "Coleta concluída com sucesso!", variant: "success" });
+        toast({
+          title: "Coleta concluída com sucesso!" + ` +${coleta.score} pontos`,
+          description: `Parabéns! você completou a coleta e recebeu ${coleta.score} pontos por isso!`,
+          variant: "success",
+        });
         onStatusUpdate();
       } else {
         toast({ title: "Item confirmado com sucesso!", variant: "success" });

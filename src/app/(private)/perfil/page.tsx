@@ -43,6 +43,7 @@ export default async function Profile() {
     while (score >= nextLevel.scoreRequired) {
       level++;
       nextLevel = levels[level];
+      actualLevel = levels[level - 1];
     }
 
     if (level === 1) {

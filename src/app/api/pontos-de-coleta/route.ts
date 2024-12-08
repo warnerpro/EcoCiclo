@@ -1,6 +1,7 @@
 import prisma from "@/lib/db/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
+import { Prisma } from "@prisma/client";
 
 // Função para autenticar e obter o usuário
 async function getAuthenticatedUser() {
@@ -41,38 +42,70 @@ export async function GET(req: Request) {
       // Para catadores, listar pontos com itens não coletados
       const { searchParams } = new URL(req.url);
       const categorias = searchParams.get("categorias");
+      const latitude = searchParams.get("latitude");
+      const longitude = searchParams.get("longitude");
 
       const categoriaIds = categorias ? categorias.split(";") : [];
 
-      console.log(categoriaIds);
+      if (latitude === null || longitude === null) {
+        const pontosDeColeta = await prisma.$queryRaw`
+          SELECT 
+            p.*,
+            (
+              6371 * acos(
+                cos(radians(${latitude})) *
+                cos(radians(p.latitude)) *
+                cos(radians(p.longitude) - radians(${longitude})) +
+                sin(radians(${latitude})) * sin(radians(p.latitude))
+              )
+            ) AS distance
+          FROM PontoColeta AS p
+          JOIN PontoColetaItem AS i ON i.pontoColetaId = p.id
+          WHERE 
+            i.coletado = false AND 
+            i.coletaId IS NULL AND
+            (${
+              categoriaIds.length > 0
+                ? `i.categoriaId IN (${categoriaIds.join(",")})`
+                : "1 = 1"
+            })
+          GROUP BY p.id
+          ORDER BY distance ASC;
+        `;
 
-      const pontosDeColeta = await prisma.pontoColeta.findMany({
-        where: {
-          itens: {
-            some: {
-              coletado: false,
-              coletaId: null,
-              categoriaId:
-                categoriaIds.length > 0
-                  ? { in: categoriaIds.map((v) => parseInt(v)) }
-                  : undefined,
+        return new Response(JSON.stringify(pontosDeColeta), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        const pontosDeColeta = await prisma.pontoColeta.findMany({
+          where: {
+            itens: {
+              some: {
+                coletado: false,
+                coletaId: null,
+                categoriaId:
+                  categoriaIds.length > 0
+                    ? { in: categoriaIds.map((v) => parseInt(v)) }
+                    : undefined,
+              },
             },
           },
-        },
-        include: {
-          itens: {
-            where: { coletado: false, coletaId: null },
-            include: {
-              categoria: true,
+          include: {
+            itens: {
+              where: { coletado: false, coletaId: null },
+              include: {
+                categoria: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      return new Response(JSON.stringify(pontosDeColeta), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+        return new Response(JSON.stringify(pontosDeColeta), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
     } else {
       return new Response(
         JSON.stringify({ error: "Tipo de usuário inválido." }),

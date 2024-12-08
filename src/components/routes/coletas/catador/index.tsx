@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import deg2rad from "deg2rad";
 import {
   Dialog,
   DialogContent,
@@ -19,9 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import { ChevronRight, ShoppingCart } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import CarrinhoDialog from "./carrinho-dialog";
-import { Icon } from "@/components/icon";
 import DrawerColetaEmAndamento from "./drawer-coleta-em-andamento";
 
 export default function CatadorColetas() {
@@ -31,6 +31,10 @@ export default function CatadorColetas() {
   const [isLoading, setIsLoading] = useState(false);
   const [carrinho, setCarrinho] = useState<any[]>([]);
   const [coletasEmAndamento, setColetasEmAndamento] = useState([]);
+  const [coordinates, setCoordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   // Fetch inicial das categorias
   const fetchCategorias = async () => {
@@ -53,23 +57,51 @@ export default function CatadorColetas() {
   // Fetch dos pontos com itens disponíveis
   const fetchPontos = async () => {
     setIsLoading(true);
-    try {
-      const query = selectedCategorias.length
-        ? `?categorias=${selectedCategorias.join(";")}`
-        : "";
-      const response = await fetch(`/api/pontos-de-coleta${query}`);
-      if (!response.ok) {
-        throw new Error("Erro ao buscar pontos de coleta.");
+
+    const fetchData = async (latitude?: number, longitude?: number) => {
+      try {
+        let query = selectedCategorias.length
+          ? `?categorias=${selectedCategorias.join(";")}`
+          : "";
+
+        if (latitude !== undefined && longitude !== undefined) {
+          query += `${
+            query ? "&" : "?"
+          }latitude=${latitude}&longitude=${longitude}`;
+        }
+
+        const response = await fetch(`/api/pontos-de-coleta${query}`);
+        if (!response.ok) {
+          throw new Error("Erro ao buscar pontos de coleta.");
+        }
+        const data = await response.json();
+        setPontos(data);
+      } catch (error) {
+        toast({
+          title: "Erro ao buscar pontos de coleta.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
       }
-      const data = await response.json();
-      setPontos(data);
-    } catch (error) {
-      toast({
-        title: "Erro ao buscar pontos de coleta.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    };
+
+    // Tentativa de obter a geolocalização
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetchData(latitude, longitude);
+          setCoordinates({ latitude, longitude });
+        },
+        () => {
+          // Caso o usuário negue a localização ou ocorra um erro, busque sem localização
+          fetchData();
+        }
+      );
+    } else {
+      // Se o navegador não suportar geolocalização, busque sem localização
+      fetchData();
     }
   };
 
@@ -140,6 +172,25 @@ export default function CatadorColetas() {
     fetchColetasEmAndamento();
   }, []);
 
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   return (
     <div className="p-4 space-y-6">
       <h1 className="text-lg font-bold text-center">EcoCiclo</h1>
@@ -206,6 +257,18 @@ export default function CatadorColetas() {
               key={ponto.id}
               className="p-4 border rounded-md shadow-sm hover:bg-gray-100"
             >
+              {coordinates ? (
+                <span className="flex text-xs items-center text-gray-500">
+                  <ChevronRight size={10} />
+                  {calculateDistance(
+                    coordinates?.latitude || 0,
+                    coordinates?.longitude || 0,
+                    ponto.latitude,
+                    ponto.longitude
+                  ).toFixed(2)}{" "}
+                  km de distância
+                </span>
+              ) : null}
               <h3 className="font-medium">{ponto.name}</h3>
               {ponto.itens.map((item: any) => (
                 <div

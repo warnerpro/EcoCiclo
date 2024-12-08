@@ -1,10 +1,10 @@
 import prisma from "@/lib/db/db"; // Certifique-se de que isso está configurado corretamente
+import { NextRequest } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const pontoId = parseInt(params.id);
+export async function GET(req: NextRequest) {
+  const params = req.nextUrl.searchParams;
+
+  const pontoId = parseInt(params.get("id")!);
 
   if (isNaN(pontoId)) {
     return Response.json(
@@ -35,11 +35,10 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const pontoId = parseInt(params.id);
+export async function POST(req: NextRequest) {
+  const params = req.nextUrl.searchParams;
+
+  const pontoId = parseInt(params.get("id")!);
 
   if (isNaN(pontoId)) {
     return Response.json(

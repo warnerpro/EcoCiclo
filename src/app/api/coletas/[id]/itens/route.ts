@@ -17,10 +17,7 @@ async function getAuthenticatedUser() {
   return user;
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request) {
   try {
     const user = await getAuthenticatedUser();
     if (user.userType !== "CATADOR") {
@@ -63,10 +60,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: Request) {
   try {
     const user = await getAuthenticatedUser();
     if (user.userType !== "CATADOR") {

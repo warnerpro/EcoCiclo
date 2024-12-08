@@ -23,6 +23,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
+import ConfirmDialog from "./confirm-dialog";
 
 const formSchema = z.object({
   address: z
@@ -241,26 +242,11 @@ export default function DrawerCreatePontoColeta({
           </Button>
 
           {confirmationData && (
-            <div className="mt-4 p-4 border rounded-md bg-gray-50">
-              <p>Confirme o endereço:</p>
-              <p className="font-bold">{confirmationData.name}</p>
-              <div className="mt-2 flex justify-end space-x-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => setConfirmationData(null)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={() => {
-                    submitAddress(confirmationData);
-                    setConfirmationData(null);
-                  }}
-                >
-                  Confirmar
-                </Button>
-              </div>
-            </div>
+            <ConfirmDialog
+              confirmationData={confirmationData}
+              submitAddress={submitAddress}
+              setConfirmationData={setConfirmationData}
+            />
           )}
         </div>
       </DrawerContent>

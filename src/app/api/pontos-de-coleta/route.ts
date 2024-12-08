@@ -22,21 +22,41 @@ async function getAuthenticatedUser() {
   return user;
 }
 
-// GET - Consultar Pontos de Coleta do Usuário
-export async function GET() {
+// GET - Consultar Pontos de Coleta
+export async function GET(req: Request) {
   try {
     const user = await getAuthenticatedUser();
 
     if (user.userType === "USUARIO") {
+      // Para usuários, listar os pontos criados por eles
       const pontosDeColeta = await prisma.pontoColeta.findMany({
         where: { authorId: user.id },
       });
 
-      return Response.json(pontosDeColeta);
+      return new Response(JSON.stringify(pontosDeColeta), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     } else if (user.userType === "CATADOR") {
+      // Para catadores, listar pontos com itens não coletados
+      const { searchParams } = new URL(req.url);
+      const categorias = searchParams.get("categorias");
+
+      const categoriaIds = categorias ? categorias.split(";") : [];
+
+      console.log(categoriaIds);
+
       const pontosDeColeta = await prisma.pontoColeta.findMany({
         where: {
-          itens: { some: { coletado: false } },
+          itens: {
+            some: {
+              coletado: false,
+              categoriaId:
+                categoriaIds.length > 0
+                  ? { in: categoriaIds.map((v) => parseInt(v)) }
+                  : undefined,
+            },
+          },
         },
         include: {
           itens: {
@@ -48,10 +68,22 @@ export async function GET() {
         },
       });
 
-      return Response.json(pontosDeColeta);
+      return new Response(JSON.stringify(pontosDeColeta), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      return new Response(
+        JSON.stringify({ error: "Tipo de usuário inválido." }),
+        { status: 403 }
+      );
     }
   } catch (error: any) {
-    return Response.json({ error: error.message }, { status: 401 });
+    console.error("Erro ao buscar pontos de coleta:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 
@@ -62,8 +94,10 @@ export async function POST(req: Request) {
     const { name, latitude, longitude } = await req.json();
 
     if (!name || latitude === undefined || longitude === undefined) {
-      return Response.json(
-        { error: "Nome, latitude e longitude são obrigatórios." },
+      return new Response(
+        JSON.stringify({
+          error: "Nome, latitude e longitude são obrigatórios.",
+        }),
         { status: 400 }
       );
     }
@@ -77,13 +111,21 @@ export async function POST(req: Request) {
       },
     });
 
+    // Incrementar score do usuário
     await prisma.user.update({
       where: { id: user.id },
       data: { score: { increment: 25 } },
     });
 
-    return Response.json(novoPonto, { status: 201 });
+    return new Response(JSON.stringify(novoPonto), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error: any) {
-    return Response.json({ error: error.message }, { status: 401 });
+    console.error("Erro ao criar ponto de coleta:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

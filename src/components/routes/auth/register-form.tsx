@@ -209,7 +209,17 @@ export default function RegisterForm() {
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>Concordo com os Termos e Condições.</FormLabel>
+                  <FormLabel>
+                    Concordo com os{" "}
+                    <Link
+                      href="/termos.pdf"
+                      target="_blank"
+                      className="text-primary"
+                    >
+                      Termos e Condições
+                    </Link>
+                    .
+                  </FormLabel>
                 </div>
               </FormItem>
             )}

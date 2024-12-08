@@ -84,9 +84,47 @@ export async function DELETE(
       );
     }
 
-    await prisma.pontoColetaItem.delete({
+    const item = await prisma.pontoColetaItem.findUnique({
       where: { id: itemId },
+      include: {
+        coleta: {
+          include: { itens: true },
+        },
+      },
     });
+
+    if (!item) {
+      return new Response(JSON.stringify({ error: "Item não encontrado." }), {
+        status: 404,
+      });
+    }
+
+    if (!item.coleta) {
+      return new Response(
+        JSON.stringify({ error: "Item não está associado a uma coleta." }),
+        { status: 400 }
+      );
+    }
+
+    if (item.coleta.catadorId !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "Item não pertence ao catador." }),
+        { status: 403 }
+      );
+    }
+
+    if (item.coleta.status === "CONCLUIDA") {
+      return new Response(JSON.stringify({ error: "Coleta já concluída." }), {
+        status: 400,
+      });
+    }
+
+    if (item.coleta.itens && item.coleta.itens.length === 1) {
+      // Se for o último item da coleta, cancela a coleta
+      await prisma.coleta.delete({
+        where: { id: item.coleta.id },
+      });
+    }
 
     return new Response(null, { status: 204 });
   } catch (error: any) {

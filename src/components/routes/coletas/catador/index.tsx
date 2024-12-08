@@ -243,7 +243,10 @@ export default function CatadorColetas() {
                     id={`item-${item.id}`}
                     checked={carrinho.some((c) => c.id === item.id)}
                     onCheckedChange={(checked) =>
-                      toggleItemCarrinho(item, checked.valueOf() === true)
+                      toggleItemCarrinho(
+                        { ...item, pontoName: ponto.name, pontoId: ponto.id },
+                        checked.valueOf() === true
+                      )
                     }
                   />
                   <Label htmlFor={`item-${item.id}`}>

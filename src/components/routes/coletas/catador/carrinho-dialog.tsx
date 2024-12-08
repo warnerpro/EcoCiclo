@@ -25,11 +25,17 @@ export default function CarrinhoDialog({
 }) {
   // Agrupar itens por ponto de coleta
   const pontosAgrupados = carrinho.reduce((acc: any, item: any) => {
-    const pontoId = item.pontoId;
-    if (!acc[pontoId]) {
-      acc[pontoId] = { pontoName: item.pontoName, itens: [] };
+    if (!acc[item.pontoId]) {
+      acc[item.pontoId] = {
+        id: item.pontoId,
+        name: item.pontoName,
+      };
     }
-    acc[pontoId].itens.push(item);
+
+    acc[item.pontoId].itens = acc[item.pontoId].itens || [];
+
+    acc[item.pontoId].itens.push(item);
+
     return acc;
   }, {});
 
@@ -51,19 +57,20 @@ export default function CarrinhoDialog({
           <Accordion type="multiple">
             {Object.entries(pontosAgrupados).map(([pontoId, ponto]: any) => (
               <AccordionItem key={pontoId} value={pontoId}>
-                <AccordionTrigger>
-                  Você tem {carrinho.length} itens
-                </AccordionTrigger>
+                <AccordionTrigger>{ponto.name}</AccordionTrigger>
                 <AccordionContent>
                   {ponto.itens.map((item: any) => (
                     <div
                       key={item.id}
                       className="flex justify-between items-center p-2 border rounded-md"
                     >
-                      <span>{item.categoria.name}</span>
+                      <div>
+                        <span>{item.categoria.name}</span>
+                      </div>
                       <Button
                         variant="destructive"
                         size="sm"
+                        className="rounded-full"
                         onClick={() => toggleItemCarrinho(item, false)}
                       >
                         Remover

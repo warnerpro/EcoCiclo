@@ -83,6 +83,8 @@ export default function DrawerColetaEmAndamento({
 
       setItens(itens.filter((item: any) => item.id !== itemId));
 
+      onStatusUpdate();
+
       toast({ title: "Item removido com sucesso!", variant: "success" });
     } catch (error) {
       toast({

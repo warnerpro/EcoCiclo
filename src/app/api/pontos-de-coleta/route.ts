@@ -51,6 +51,7 @@ export async function GET(req: Request) {
           itens: {
             some: {
               coletado: false,
+              coletaId: null,
               categoriaId:
                 categoriaIds.length > 0
                   ? { in: categoriaIds.map((v) => parseInt(v)) }
@@ -60,7 +61,7 @@ export async function GET(req: Request) {
         },
         include: {
           itens: {
-            where: { coletado: false },
+            where: { coletado: false, coletaId: null },
             include: {
               categoria: true,
             },

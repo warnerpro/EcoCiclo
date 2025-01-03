@@ -106,6 +106,7 @@ export default function DialogNovoItem({
 
       form.reset();
       onItemAdded();
+      fetchCategorias();
       setIsDialogOpen(false);
     } catch (error) {
       toast({

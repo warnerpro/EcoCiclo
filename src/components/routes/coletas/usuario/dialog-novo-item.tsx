@@ -77,7 +77,7 @@ export default function DialogNovoItem({
 
   useEffect(() => {
     fetchCategorias();
-  }, []);
+  }, [pontoId]);
 
   const onSubmit = async (values: FormValues) => {
     try {

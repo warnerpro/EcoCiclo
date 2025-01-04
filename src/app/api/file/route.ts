@@ -14,7 +14,8 @@ export const POST = async (req, res) => {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const filename = file.name.replaceAll(" ", "_");
+  const filename = `${Date.now()}-${file.name.replaceAll(" ", "_")}`;
+
   try {
     const s3 = new S3Client({
       endpoint: process.env.S3_URL,

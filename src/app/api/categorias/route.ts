@@ -7,7 +7,11 @@ export async function GET(req: Request) {
 
     const categorias = await prisma.categoria.findMany({
       where: pontoId
-        ? { itens: { none: { pontoColetaId: parseInt(pontoId) } } }
+        ? {
+            itens: {
+              none: { pontoColetaId: parseInt(pontoId), coletado: false },
+            },
+          }
         : undefined,
     });
 

@@ -1,6 +1,6 @@
 # ♻️ EcoCiclo
 
-Esse é o código de entrega do EcoCiclo, uma aplicação desenvolvida pelos alunos da Unievangélica de Goiás durante os dias 6, 7 e 8 de Dezembro de 2024 no 1° Hackathon do Curso de Engenharia de Software.
+O EcoCiclo é um aplicativo móvel que otimiza a coleta seletiva em Anápolis por meio de logística inteligente, dados em tempo real e engajamento dos cidadãos
 
 ## 🚀 Tecnologias
 

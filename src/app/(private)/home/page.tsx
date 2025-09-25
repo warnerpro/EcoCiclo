@@ -25,8 +25,10 @@ export default async function Home() {
     <div className="flex text-center  flex-col p-4 space-y-16">
       <h1 className="font-extrabold">EcoCiclo</h1>
       <p className="text-xl font-bold">
-        Bem-vindo, {getFirstAndLastName(session.user.name)}!
-      </p>
+  {session && session.user
+    ? `Bem-vindo, ${getFirstAndLastName(session.user.name)}!`
+    : "Bem-vindo!"}
+</p>
       <p className="font-light">Juntos, estamos transformando o mundo!</p>
       <Link href="/coletas">
         <Button className="w-full font-bold">{getMessage()}</Button>

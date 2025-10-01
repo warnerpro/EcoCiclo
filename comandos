@@ -1,0 +1,15 @@
+// npx prisma studio - abre o banco de dados
+
+// npm install - instala as dependências do projeto (após clonar o repositório)
+
+// npm run dev - inicia o servidor local
+
+// npx prisma migrate dev --name init - cria a migration inicial do banco de dados
+
+// npx prisma migrate reset - reseta o banco de dados (apaga tudo e recria as tabelas)
+
+// npx prisma generate - gera o cliente do Prisma (após criar ou editar o schema.prisma)
+
+
+
+

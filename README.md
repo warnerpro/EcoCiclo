@@ -25,7 +25,8 @@ Este projeto foi desenvolvido com as seguintes tecnologias:
 
 ### Backend & Database
 - [Prisma](https://www.prisma.io) - ORM para Node.js e TypeScript
-- [MySQL](https://www.mysql.com) - Sistema de gerenciamento de banco de dados
+- [PostgreSQL](https://www.postgresql.org) - Sistema de gerenciamento de banco de dados
+- [Neon](https://neon.tech) - PostgreSQL Serverless (produção)
 - [NextAuth.js](https://next-auth.js.org) - Autenticação para Next.js
 
 ### UI Components
@@ -45,8 +46,10 @@ Antes de começar, você vai precisar ter instalado em sua máquina:
 
 - [Node.js](https://nodejs.org) (versão 20 ou superior)
 - [npm](https://www.npmjs.com) ou [yarn](https://yarnpkg.com)
-- [Docker](https://www.docker.com) e [Docker Compose](https://docs.docker.com/compose/) (para o banco de dados)
+- [Docker](https://www.docker.com) e [Docker Compose](https://docs.docker.com/compose/) (opcional, apenas para desenvolvimento local)
 - [Git](https://git-scm.com)
+- Conta no [Vercel](https://vercel.com) (para deploy em produção)
+- Conta no [Neon](https://neon.tech) ou outro provedor PostgreSQL (para banco de dados em produção)
 
 ## 📦 Instalação
 
@@ -67,29 +70,40 @@ npm install
 
 ### 1. Configure o Banco de Dados
 
-Inicie o container MySQL usando Docker Compose:
+#### Opção A: Desenvolvimento Local (Docker)
+
+Inicie o container PostgreSQL usando Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
 
-Isso irá criar um container MySQL com as seguintes configurações padrão:
-- **Porta**: 3306
-- **Usuário**: my_user
-- **Senha**: my_password
-- **Database**: my_database
+Isso irá criar um container PostgreSQL com as seguintes configurações padrão:
+- **Porta**: 5432
+- **Usuário**: postgres
+- **Senha**: postgres
+- **Database**: ecociclo
+
+#### Opção B: Produção (Neon ou outro provedor)
+
+1. Crie uma conta no [Neon](https://neon.tech)
+2. Crie um novo banco de dados PostgreSQL
+3. Copie a string de conexão fornecida (DATABASE_URL)
 
 ### 2. Configure as Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
 ```env
-# Database
-DATABASE_URL="mysql://my_user:my_password@localhost:3306/my_database"
+# Database (desenvolvimento local)
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ecociclo"
+
+# Database (produção - exemplo com Neon)
+# DATABASE_URL="postgresql://user:password@ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # NextAuth
 NEXTAUTH_SECRET="seu-secret-key-aqui"
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3000"  # Em produção: https://seu-dominio.vercel.app
 
 # AWS S3 (opcional, apenas se for usar upload de arquivos)
 AWS_ACCESS_KEY_ID="sua-access-key"
@@ -134,7 +148,7 @@ npm run dev
 
 A aplicação estará disponível em [http://localhost:3000](http://localhost:3000)
 
-### Modo de Produção
+### Modo de Produção Local
 
 ```bash
 # Build da aplicação
@@ -143,6 +157,78 @@ npm run build
 # Inicia o servidor de produção
 npm start
 ```
+
+## 🚀 Deploy na Vercel
+
+### 1. Preparação
+
+Certifique-se de que seu código está no GitHub:
+
+```bash
+git add .
+git commit -m "feat: preparar para deploy"
+git push origin main
+```
+
+### 2. Deploy no Vercel
+
+1. Acesse [vercel.com](https://vercel.com) e faça login
+2. Clique em **"Add New Project"**
+3. Importe seu repositório do GitHub
+4. Configure o projeto:
+   - **Framework Preset**: Next.js
+   - **Root Directory**: `./`
+   - **Build Command**: `npm run build` (já configurado)
+   - **Output Directory**: `.next` (já configurado)
+
+### 3. Configurar Banco de Dados
+
+#### Opção A: Neon (Recomendado)
+
+1. No dashboard da Vercel, vá em **Storage**
+2. Clique em **Create Database**
+3. Escolha **Postgres** (Powered by Neon)
+4. Dê um nome ao banco (ex: `ecociclo-db`)
+5. Clique em **Create**
+6. Conecte ao seu projeto:
+   - Clique em **Connect Project**
+   - Selecione seu projeto EcoCiclo
+   - Marque as opções `.env.production` e `.env.preview`
+   - Clique em **Connect**
+
+Isso criará automaticamente a variável `DATABASE_URL` no Vercel.
+
+#### Opção B: Outro Provedor PostgreSQL
+
+Configure manualmente em **Settings → Environment Variables**:
+- `DATABASE_URL`: String de conexão PostgreSQL
+
+### 4. Configurar Variáveis de Ambiente
+
+Vá em **Settings → Environment Variables** e adicione:
+
+| Variável | Valor | Ambiente |
+|----------|-------|----------|
+| `DATABASE_URL` | (já configurado pelo Neon) | Production, Preview, Development |
+| `NEXTAUTH_SECRET` | Gere com: `openssl rand -base64 32` | Production, Preview, Development |
+| `NEXTAUTH_URL` | `https://seu-projeto.vercel.app` | Production |
+| `GOOGLE_MAPS_API_KEY` | Sua chave da API do Google Maps | Production, Preview, Development |
+
+### 5. Deploy
+
+1. Após configurar as variáveis, clique em **Deployments**
+2. Clique em **Redeploy** no último deploy
+3. Aguarde o build terminar (3-5 minutos)
+4. Acesse sua aplicação em `https://seu-projeto.vercel.app`
+
+### 6. Migrações Automáticas
+
+O script `vercel-build` no `package.json` já está configurado para:
+1. Gerar o Prisma Client (`prisma generate`)
+2. Aplicar migrações (`prisma migrate deploy`)
+3. Fazer build do Next.js (`next build`)
+
+Não é necessário executar migrações manualmente!
 
 ## � Uso do Sistema
 
@@ -253,22 +339,60 @@ npm run lint         # Executa o linter do Next.js
 
 # Prisma
 npx prisma studio    # Abre interface visual do banco de dados
-npx prisma migrate dev  # Cria e aplica migrações
+npx prisma migrate dev  # Cria e aplica migrações (desenvolvimento)
+npx prisma migrate deploy  # Aplica migrações (produção)
 npx prisma generate  # Gera o Prisma Client
 npx prisma db seed   # Popula o banco com dados iniciais
+npx prisma db push   # Sincroniza schema com banco (sem migrações)
+
+# Vercel (scripts executados automaticamente no deploy)
+npm run postinstall  # Gera o Prisma Client
+npm run vercel-build # Gera client, aplica migrações e faz build
 ```
 
 ## 🐛 Troubleshooting
 
-### Erro de conexão com o banco de dados
+### Erro de conexão com o banco de dados (Desenvolvimento Local)
 - Verifique se o Docker está rodando: `docker ps`
-- Verifique se o container MySQL está ativo
+- Verifique se o container PostgreSQL está ativo
 - Confirme se as credenciais no `.env` estão corretas
+- Teste a conexão: `npx prisma db pull`
+
+### Erro de conexão com o banco de dados (Vercel/Produção)
+- Verifique se a variável `DATABASE_URL` está configurada no Vercel
+- Vá em **Settings → Environment Variables**
+- Certifique-se de que a string de conexão está correta
+- Verifique se o banco Neon está ativo e acessível
 
 ### Erro "Prisma Client não encontrado"
 ```bash
 npx prisma generate
 ```
+
+### Erro de Migração no Deploy (P3018, P3019, P3009)
+
+Se você encontrar erros de migração no Vercel:
+
+1. **P3018** (null bytes): Migração corrompida
+   - Recrie a pasta de migrações localmente
+   - Commit e push as mudanças
+
+2. **P3019** (provider mismatch): Banco incompatível
+   - Certifique-se de que `prisma/schema.prisma` tem `provider = "postgresql"`
+   - Verifique o arquivo `prisma/migrations/migration_lock.toml`
+
+3. **P3009** (failed migration): Migração falhou anteriormente
+   - **Solução 1**: Delete e recrie o banco de dados no Neon
+   - **Solução 2**: Conecte ao banco e limpe a tabela `_prisma_migrations`
+
+### Erro "Column does not exist" após Deploy
+
+Se você vê erros como "The column `PontoColeta.nome` does not exist":
+
+1. O schema Prisma e o banco estão desalinhados
+2. Verifique se as migrações foram aplicadas no deploy
+3. Confira os logs do build no Vercel em **Deployments → Build Logs**
+4. Se necessário, faça redeploy após corrigir as migrações
 
 ### Erro na API do Google Maps
 Se você está tendo problemas ao criar pontos de coleta com localização:
@@ -314,10 +438,6 @@ taskkill /PID <PID> /F
 # Ou rode em outra porta
 $env:PORT=3001; npm run dev
 ```
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
 
 ## 👥 Contribuindo
 

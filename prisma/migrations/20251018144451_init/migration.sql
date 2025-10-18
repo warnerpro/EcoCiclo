@@ -33,12 +33,9 @@ CREATE TABLE "public"."Achievement" (
 -- CreateTable
 CREATE TABLE "public"."Foto" (
     "id" SERIAL NOT NULL,
-    "url" TEXT NOT NULL,
     "key" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "pontoColetaId" INTEGER,
-    "coletaId" INTEGER,
 
     CONSTRAINT "Foto_pkey" PRIMARY KEY ("id")
 );
@@ -46,13 +43,12 @@ CREATE TABLE "public"."Foto" (
 -- CreateTable
 CREATE TABLE "public"."PontoColeta" (
     "id" SERIAL NOT NULL,
-    "nome" TEXT NOT NULL,
-    "descricao" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "latitude" DOUBLE PRECISION NOT NULL,
     "longitude" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "usuarioId" TEXT NOT NULL,
+    "authorId" TEXT NOT NULL,
 
     CONSTRAINT "PontoColeta_pkey" PRIMARY KEY ("id")
 );
@@ -60,9 +56,12 @@ CREATE TABLE "public"."PontoColeta" (
 -- CreateTable
 CREATE TABLE "public"."PontoColetaItem" (
     "id" SERIAL NOT NULL,
-    "categoriaId" INTEGER NOT NULL,
     "pontoColetaId" INTEGER NOT NULL,
-    "quantidade" INTEGER NOT NULL,
+    "coletado" BOOLEAN NOT NULL DEFAULT false,
+    "categoriaId" INTEGER NOT NULL,
+    "coletaId" INTEGER,
+    "fotoId" INTEGER,
+    "autorId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -72,12 +71,12 @@ CREATE TABLE "public"."PontoColetaItem" (
 -- CreateTable
 CREATE TABLE "public"."Coleta" (
     "id" SERIAL NOT NULL,
-    "status" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "score" INTEGER NOT NULL,
+    "catadorId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDENTE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "usuarioId" TEXT NOT NULL,
-    "catadorId" TEXT,
-    "pontoColetaId" INTEGER NOT NULL,
 
     CONSTRAINT "Coleta_pkey" PRIMARY KEY ("id")
 );
@@ -85,11 +84,8 @@ CREATE TABLE "public"."Coleta" (
 -- CreateTable
 CREATE TABLE "public"."Categoria" (
     "id" SERIAL NOT NULL,
-    "nome" TEXT NOT NULL,
-    "pontos" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "iconKey" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Categoria_pkey" PRIMARY KEY ("id")
 );
@@ -100,32 +96,26 @@ CREATE UNIQUE INDEX "User_cpf_key" ON "public"."User"("cpf");
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Foto_key_key" ON "public"."Foto"("key");
-
 -- AddForeignKey
 ALTER TABLE "public"."Achievement" ADD CONSTRAINT "Achievement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Foto" ADD CONSTRAINT "Foto_pontoColetaId_fkey" FOREIGN KEY ("pontoColetaId") REFERENCES "public"."PontoColeta"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."Foto" ADD CONSTRAINT "Foto_coletaId_fkey" FOREIGN KEY ("coletaId") REFERENCES "public"."Coleta"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."PontoColeta" ADD CONSTRAINT "PontoColeta_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."PontoColetaItem" ADD CONSTRAINT "PontoColetaItem_categoriaId_fkey" FOREIGN KEY ("categoriaId") REFERENCES "public"."Categoria"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."PontoColeta" ADD CONSTRAINT "PontoColeta_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."PontoColetaItem" ADD CONSTRAINT "PontoColetaItem_pontoColetaId_fkey" FOREIGN KEY ("pontoColetaId") REFERENCES "public"."PontoColeta"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Coleta" ADD CONSTRAINT "Coleta_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."PontoColetaItem" ADD CONSTRAINT "PontoColetaItem_categoriaId_fkey" FOREIGN KEY ("categoriaId") REFERENCES "public"."Categoria"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Coleta" ADD CONSTRAINT "Coleta_catadorId_fkey" FOREIGN KEY ("catadorId") REFERENCES "public"."User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."PontoColetaItem" ADD CONSTRAINT "PontoColetaItem_coletaId_fkey" FOREIGN KEY ("coletaId") REFERENCES "public"."Coleta"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Coleta" ADD CONSTRAINT "Coleta_pontoColetaId_fkey" FOREIGN KEY ("pontoColetaId") REFERENCES "public"."PontoColeta"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."PontoColetaItem" ADD CONSTRAINT "PontoColetaItem_fotoId_fkey" FOREIGN KEY ("fotoId") REFERENCES "public"."Foto"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."PontoColetaItem" ADD CONSTRAINT "PontoColetaItem_autorId_fkey" FOREIGN KEY ("autorId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Coleta" ADD CONSTRAINT "Coleta_catadorId_fkey" FOREIGN KEY ("catadorId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

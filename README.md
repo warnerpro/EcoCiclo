@@ -445,4 +445,4 @@ Contribuições são sempre bem-vindas! Sinta-se à vontade para abrir issues e 
 
 ---
 
-Desenvolvido com 💚 para um futuro mais sustentável
+Desenvolvido com 💚 para um futuro mais sustentável.

@@ -40,14 +40,30 @@ export const POST = async (req, res) => {
     const buffer = Buffer.from(await file.arrayBuffer());
     const filename = `${Date.now()}-${file.name.replaceAll(" ", "_")}`;
 
+    // Log detalhado de variáveis de ambiente
+    console.log("🔍 Verificando variáveis de ambiente AWS:");
+    console.log(`  AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? "✅ Configurada" : "❌ Faltando"}`);
+    console.log(`  AWS_REGION: ${process.env.AWS_REGION ? "✅ Configurada" : "❌ Faltando"}`);
+    console.log(`  AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? "✅ Configurada" : "❌ Faltando"}`);
+    console.log(`  AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? "✅ Configurada" : "❌ Faltando"}`);
+
     // Verificação de variáveis de ambiente
-    if (!process.env.AWS_BUCKET_NAME || !process.env.AWS_REGION) {
-      console.error("Variáveis de ambiente AWS não configuradas");
+    const missingEnvVars = [];
+    if (!process.env.AWS_BUCKET_NAME) missingEnvVars.push("AWS_BUCKET_NAME");
+    if (!process.env.AWS_REGION) missingEnvVars.push("AWS_REGION");
+    if (!process.env.AWS_ACCESS_KEY_ID) missingEnvVars.push("AWS_ACCESS_KEY_ID");
+    if (!process.env.AWS_SECRET_ACCESS_KEY) missingEnvVars.push("AWS_SECRET_ACCESS_KEY");
+
+    if (missingEnvVars.length > 0) {
+      const errorMessage = `Variáveis de ambiente AWS não configuradas: ${missingEnvVars.join(", ")}`;
+      console.error(`❌ ${errorMessage}`);
       return NextResponse.json(
-        { error: "Configuração do servidor incompleta." },
+        { error: errorMessage },
         { status: 500 }
       );
     }
+
+    console.log("✅ Todas as variáveis de ambiente estão configuradas");
 
     const s3 = new S3Client({
       region: process.env.AWS_REGION,
@@ -72,12 +88,14 @@ export const POST = async (req, res) => {
       },
     });
 
+    console.log(`✅ Foto enviada com sucesso: ${filename}`);
+
     return NextResponse.json(
       { message: "Foto enviada com sucesso!", foto },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Erro ao fazer upload da foto:", error);
+    console.error("❌ Erro ao fazer upload da foto:", error);
     return NextResponse.json(
       { error: "Falha ao enviar a foto. Tente novamente." },
       { status: 500 }

@@ -52,6 +52,7 @@ export default function DialogNovoItem({
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchCategorias = async () => {
     setIsLoading(true);
@@ -81,6 +82,7 @@ export default function DialogNovoItem({
 
   const onSubmit = async (values: FormValues) => {
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/pontos-de-coleta/${pontoId}/itens`, {
         method: "POST",
         cache: "no-cache",
@@ -115,6 +117,8 @@ export default function DialogNovoItem({
         variant: "destructive",
       });
       console.error("Erro ao adicionar item:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -171,9 +175,9 @@ export default function DialogNovoItem({
           <DialogFooter>
             <Button
               type="submit"
-              disabled={isLoading || !form.watch("categoriaId")}
+              disabled={!form.watch("categoriaId") || isSubmitting}
             >
-              Salvar
+              {isSubmitting ? "Salvando..." : "Salvar"}
             </Button>
           </DialogFooter>
         </form>

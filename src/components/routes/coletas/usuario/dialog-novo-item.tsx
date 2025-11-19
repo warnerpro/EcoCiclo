@@ -175,7 +175,7 @@ export default function DialogNovoItem({
           <DialogFooter>
             <Button
               type="submit"
-              disabled={!form.watch("categoriaId") || isSubmitting}
+              disabled={form.watch("categoriaId") === 0 || isSubmitting}
             >
               {isSubmitting ? "Salvando..." : "Salvar"}
             </Button>

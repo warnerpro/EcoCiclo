@@ -161,6 +161,11 @@ export default function DialogNovoItem({
           <UploadFile
             onUploadComplete={(fotoId) => {
               form.setValue("fotoId", fotoId);
+              toast({
+                title: "Foto adicionada",
+                description: "Clique em Salvar para confirmar o item.",
+                variant: "success",
+              });
             }}
           />
           <DialogFooter>

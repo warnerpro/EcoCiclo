@@ -54,6 +54,10 @@ export default function DialogNovoItem({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Watch para debug
+  const selectedCategoryId = form.watch("categoriaId");
+  const canSubmit = selectedCategoryId > 0 && !isSubmitting;
+
   const fetchCategorias = async () => {
     setIsLoading(true);
     try {
@@ -139,26 +143,37 @@ export default function DialogNovoItem({
             {isLoading ? (
               <p className="text-sm text-gray-400">Carregando categorias...</p>
             ) : (
-              <div className="grid grid-cols-3 gap-4">
-                {categorias.map((categoria) => (
-                  <button
-                    type="button"
-                    key={categoria.id}
-                    onClick={() => {
-                      form.setValue("categoriaId", categoria.id);
-                    }}
-                    className={`p-4 border rounded-md flex flex-col items-center space-y-2 hover:bg-gray-100 ${
-                      form.watch("categoriaId") === categoria.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <Icon name={categoria.iconKey} size={32} />
-                    <span className="text-sm font-medium text-gray-700">
-                      {shortNames(categoria.name)}
-                    </span>
-                  </button>
-                ))}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Selecione a categoria do item:</label>
+                <div className="grid grid-cols-3 gap-4">
+                  {categorias.map((categoria) => (
+                    <button
+                      type="button"
+                      key={categoria.id}
+                      onClick={() => {
+                        form.setValue("categoriaId", categoria.id, { 
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true 
+                        });
+                        console.log("Categoria selecionada:", categoria.id, categoria.name);
+                      }}
+                      className={`p-4 border-2 rounded-md flex flex-col items-center space-y-2 transition-all ${
+                        selectedCategoryId === categoria.id
+                          ? "border-blue-500 bg-blue-50 shadow-md"
+                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Icon name={categoria.iconKey} size={32} />
+                      <span className="text-sm font-medium text-gray-700">
+                        {shortNames(categoria.name)}
+                      </span>
+                      {selectedCategoryId === categoria.id && (
+                        <span className="text-xs text-blue-600 font-semibold">✓ Selecionado</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -172,10 +187,18 @@ export default function DialogNovoItem({
               });
             }}
           />
+
+          {/* Indicador visual de seleção */}
+          {selectedCategoryId === 0 && (
+            <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200">
+              ⚠️ Por favor, selecione uma categoria acima para habilitar o botão Salvar
+            </div>
+          )}
+
           <DialogFooter>
             <Button
               type="submit"
-              disabled={form.watch("categoriaId") === 0 || isSubmitting}
+              disabled={!canSubmit}
             >
               {isSubmitting ? "Salvando..." : "Salvar"}
             </Button>

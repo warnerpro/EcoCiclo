@@ -284,17 +284,20 @@ export default function CatadorColetas() {
                         )
                       }
                     />
-                    <Label htmlFor={`item-${item.id}`}>
+                    <Label htmlFor={`item-${item.id}`} className="flex-1">
                       {item.categoria.name}
                     </Label>
                   </div>
-                  {item.fotoId && (
-                    <Image
-                      src={`/api/file/${item.fotoId}`}
-                      width={128}
-                      height={128}
-                      alt={item.categoria.name}
-                    />
+                  {item.foto && (
+                    <div className="ml-6">
+                      <Image
+                        src={`/api/file/${item.fotoId}`}
+                        width={200}
+                        height={200}
+                        alt={item.categoria.name}
+                        className="rounded-md border border-gray-200 object-cover"
+                      />
+                    </div>
                   )}
                 </div>
               ))}

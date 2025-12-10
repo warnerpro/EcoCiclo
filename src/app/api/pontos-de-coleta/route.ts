@@ -96,6 +96,7 @@ export async function GET(req: Request) {
               where: { coletado: false, coletaId: null },
               include: {
                 categoria: true,
+                foto: true,
               },
             },
           },

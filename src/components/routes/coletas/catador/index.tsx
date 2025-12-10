@@ -76,6 +76,12 @@ export default function CatadorColetas() {
           throw new Error("Erro ao buscar pontos de coleta.");
         }
         const data = await response.json();
+        console.log("🔍 Dados dos pontos recebidos:", data);
+        if (data.length > 0 && data[0].itens?.length > 0) {
+          console.log("📸 Primeiro item:", data[0].itens[0]);
+          console.log("📸 Tem foto?", data[0].itens[0].foto);
+          console.log("📸 FotoId:", data[0].itens[0].fotoId);
+        }
         setPontos(data);
       } catch (error) {
         toast({

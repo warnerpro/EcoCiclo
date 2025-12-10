@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db/db";
 
-export async function POST() {
+async function seedCategorias() {
   try {
     console.log("🌱 Iniciando seed de categorias via API...");
 
@@ -9,10 +9,12 @@ export async function POST() {
     const existentes = await prisma.categoria.count();
     
     if (existentes > 0) {
-      return NextResponse.json({
+      return {
+        success: true,
+        alreadyExists: true,
         message: `⚠️ Já existem ${existentes} categorias cadastradas. Seed cancelado.`,
         count: existentes
-      });
+      };
     }
 
     const categorias = [
@@ -41,16 +43,29 @@ export async function POST() {
       orderBy: { name: 'asc' }
     });
 
-    return NextResponse.json({
+    return {
+      success: true,
       message: `✅ ${result.count} categorias criadas com sucesso!`,
+      count: result.count,
       categorias: todasCategorias
-    });
+    };
 
   } catch (error) {
     console.error("❌ Erro ao criar categorias:", error);
-    return NextResponse.json(
-      { error: "Erro ao criar categorias", details: String(error) },
-      { status: 500 }
-    );
+    return {
+      success: false,
+      error: "Erro ao criar categorias",
+      details: String(error)
+    };
   }
+}
+
+export async function GET() {
+  const result = await seedCategorias();
+  return NextResponse.json(result, { status: result.success ? 200 : 500 });
+}
+
+export async function POST() {
+  const result = await seedCategorias();
+  return NextResponse.json(result, { status: result.success ? 200 : 500 });
 }

@@ -61,6 +61,7 @@ export default function DialogNovoItem({
   const fetchCategorias = async () => {
     setIsLoading(true);
     try {
+      console.log("🔍 Buscando categorias para pontoId:", pontoId);
       const response = await fetch(`/api/categorias?pontoId=${pontoId}`, {
         cache: "no-cache",
       });
@@ -68,8 +69,18 @@ export default function DialogNovoItem({
         throw new Error("Erro ao buscar categorias.");
       }
       const data = await response.json();
+      console.log("📦 Categorias recebidas:", data);
       setCategorias(data);
+      
+      if (data.length === 0) {
+        toast({
+          title: "Nenhuma categoria disponível",
+          description: "Todas as categorias já possuem itens neste ponto de coleta.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
+      console.error("❌ Erro ao buscar categorias:", error);
       toast({
         title: "Erro ao buscar categorias.",
         description: "Verifique sua conexão ou tente novamente.",
@@ -81,8 +92,10 @@ export default function DialogNovoItem({
   };
 
   useEffect(() => {
-    fetchCategorias();
-  }, [pontoId]);
+    if (isDialogOpen && pontoId) {
+      fetchCategorias();
+    }
+  }, [pontoId, isDialogOpen]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -142,6 +155,13 @@ export default function DialogNovoItem({
           <div>
             {isLoading ? (
               <p className="text-sm text-gray-400">Carregando categorias...</p>
+            ) : categorias.length === 0 ? (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600 font-semibold">❌ Nenhuma categoria encontrada</p>
+                <p className="text-xs text-red-500 mt-1">
+                  É necessário cadastrar categorias no sistema antes de adicionar itens.
+                </p>
+              </div>
             ) : (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Selecione a categoria do item:</label>

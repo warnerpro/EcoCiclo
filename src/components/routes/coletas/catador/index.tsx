@@ -296,7 +296,7 @@ export default function CatadorColetas() {
                   </div>
                   {item.foto && (
                     <div className="ml-6">
-                      <Image
+                      <img
                         src={`/api/file/${item.fotoId}`}
                         width={200}
                         height={200}
